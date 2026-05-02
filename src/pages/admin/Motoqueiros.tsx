@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 const schema = z.object({
   nome: z.string().trim().min(1, "Nome obrigatório").max(120),
@@ -20,6 +21,7 @@ const schema = z.object({
 interface M { id: string; nome: string; cpf: string; numero: string; data_nascimento: string | null; }
 
 export default function Motoqueiros() {
+  const { user } = useAuth();
   const [list, setList] = useState<M[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<M | null>(null);
@@ -38,10 +40,16 @@ export default function Motoqueiros() {
     e.preventDefault();
     const parsed = schema.safeParse(form);
     if (!parsed.success) { toast.error(parsed.error.errors[0].message); return; }
-    const payload = { ...parsed.data, data_nascimento: parsed.data.data_nascimento || null };
+    if (!user) { toast.error("Sessão inválida"); return; }
+    const base = {
+      nome: parsed.data.nome,
+      cpf: parsed.data.cpf,
+      numero: parsed.data.numero,
+      data_nascimento: parsed.data.data_nascimento || null,
+    };
     const { error } = editing
-      ? await supabase.from("motoqueiros").update(payload).eq("id", editing.id)
-      : await supabase.from("motoqueiros").insert(payload);
+      ? await supabase.from("motoqueiros").update(base).eq("id", editing.id)
+      : await supabase.from("motoqueiros").insert({ ...base, owner_id: user.id });
     if (error) { toast.error(error.message); return; }
     toast.success(editing ? "Atualizado" : "Cadastrado");
     setOpen(false); load();

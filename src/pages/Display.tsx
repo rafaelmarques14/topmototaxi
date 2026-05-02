@@ -50,10 +50,10 @@ export default function Display() {
 
         {next ? (
           <div className="text-center animate-in fade-in zoom-in duration-500">
-            <div className="text-display gradient-display bg-clip-text text-transparent leading-none mb-8" style={{ fontSize: "clamp(8rem, 30vw, 22rem)" }}>
+            <div className="text-display leading-none mb-8 text-primary" style={{ fontSize: "clamp(8rem, 30vw, 22rem)" }}>
               {next.motoqueiro?.numero}
             </div>
-            <div className="text-display text-foreground" style={{ fontSize: "clamp(2rem, 6vw, 4.5rem)" }}>
+            <div className="text-display text-primary" style={{ fontSize: "clamp(2rem, 6vw, 4.5rem)" }}>
               {next.motoqueiro?.nome}
             </div>
           </div>

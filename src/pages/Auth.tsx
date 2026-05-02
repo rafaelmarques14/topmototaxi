@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Bike } from "lucide-react";
 
 export default function Auth() {
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -30,6 +30,13 @@ export default function Auth() {
         });
         if (error) throw error;
         toast.success("Conta criada! Você já pode entrar.");
+        setMode("login");
+      } else if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success("Enviamos um link de redefinição para o seu e-mail.");
         setMode("login");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -57,19 +64,30 @@ export default function Auth() {
             <Label htmlFor="email">E-mail</Label>
             <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
-          <div>
-            <Label htmlFor="password">Senha</Label>
-            <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
-          </div>
+          {mode !== "forgot" && (
+            <div>
+              <Label htmlFor="password">Senha</Label>
+              <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
+            </div>
+          )}
           <Button type="submit" disabled={busy} className="w-full gradient-primary text-primary-foreground hover:opacity-90">
-            {busy ? "Aguarde..." : mode === "login" ? "Entrar" : "Criar conta"}
+            {busy ? "Aguarde..." : mode === "login" ? "Entrar" : mode === "signup" ? "Criar conta" : "Enviar link"}
           </Button>
         </form>
 
-        <div className="text-center mt-4 text-sm">
+        <div className="text-center mt-4 text-sm space-y-2">
+          {mode === "login" && (
+            <div>
+              <button onClick={() => setMode("forgot")} className="text-primary hover:underline">
+                Esqueci minha senha
+              </button>
+            </div>
+          )}
+          <div>
           <button onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-primary hover:underline">
-            {mode === "login" ? "Criar conta de administrador" : "Já tenho conta"}
+            {mode === "signup" || mode === "forgot" ? "Já tenho conta" : "Criar conta de administrador"}
           </button>
+          </div>
         </div>
         <div className="text-center mt-3 text-sm">
           <Link to="/" className="text-muted-foreground hover:underline">← Tela de chamada</Link>
