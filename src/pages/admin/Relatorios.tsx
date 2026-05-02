@@ -51,13 +51,12 @@ export default function Relatorios() {
         <p className="text-sm text-muted-foreground">Total no período: <strong className="text-foreground">{filtered.length}</strong></p>
       </div>
 
-      <Card className="p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          
-          <div className="space-y-2 min-w-0">
+      <Card className="p-4 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+          <div className="flex flex-col gap-2 min-w-0 w-full">
             <Label>Filtrar por</Label>
             <Select value={period} onValueChange={v => setPeriod(v as Period)}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full text-left truncate"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="dia">Dia</SelectItem>
                 <SelectItem value="mes">Mês</SelectItem>
@@ -68,23 +67,39 @@ export default function Relatorios() {
           </div>
           
           {period !== "tudo" && (
-            <div className="space-y-2 min-w-0">
+            <div className="flex flex-col gap-2 min-w-0 w-full overflow-hidden">
               {period === "dia" && (
                 <>
                   <Label>Data</Label>
-                  <Input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full" />
+                  <Input 
+                    type="date" 
+                    value={date} 
+                    onChange={e => setDate(e.target.value)} 
+                    // As classes abaixo forçam o campo a não estourar o layout
+                    className="w-full min-w-0 overflow-hidden text-ellipsis px-3" 
+                  />
                 </>
               )}
               {period === "mes" && (
                 <>
                   <Label>Mês</Label>
-                  <Input type="month" value={month} onChange={e => setMonth(e.target.value)} className="w-full" />
+                  <Input 
+                    type="month" 
+                    value={month} 
+                    onChange={e => setMonth(e.target.value)} 
+                    className="w-full min-w-0 overflow-hidden text-ellipsis px-3" 
+                  />
                 </>
               )}
               {period === "ano" && (
                 <>
                   <Label>Ano</Label>
-                  <Input type="number" value={year} onChange={e => setYear(e.target.value)} className="w-full" />
+                  <Input 
+                    type="number" 
+                    value={year} 
+                    onChange={e => setYear(e.target.value)} 
+                    className="w-full min-w-0 px-3" 
+                  />
                 </>
               )}
             </div>
