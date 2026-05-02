@@ -19,18 +19,21 @@ export type Database = {
           created_at: string
           id: string
           motoqueiro_id: string
+          owner_id: string
           posicao: number
         }
         Insert: {
           created_at?: string
           id?: string
           motoqueiro_id: string
+          owner_id: string
           posicao: number
         }
         Update: {
           created_at?: string
           id?: string
           motoqueiro_id?: string
+          owner_id?: string
           posicao?: number
         }
         Relationships: [
@@ -52,6 +55,7 @@ export type Database = {
           id: string
           nome: string
           numero: string
+          owner_id: string
         }
         Insert: {
           ativo?: boolean
@@ -61,6 +65,7 @@ export type Database = {
           id?: string
           nome: string
           numero: string
+          owner_id: string
         }
         Update: {
           ativo?: boolean
@@ -70,6 +75,7 @@ export type Database = {
           id?: string
           nome?: string
           numero?: string
+          owner_id?: string
         }
         Relationships: []
       }
@@ -99,16 +105,19 @@ export type Database = {
           id: string
           iniciada_em: string
           motoqueiro_id: string
+          owner_id: string
         }
         Insert: {
           id?: string
           iniciada_em?: string
           motoqueiro_id: string
+          owner_id: string
         }
         Update: {
           id?: string
           iniciada_em?: string
           motoqueiro_id?: string
+          owner_id?: string
         }
         Relationships: [
           {
