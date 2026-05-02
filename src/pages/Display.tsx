@@ -49,7 +49,7 @@ export default function Display() {
         <div className="flex flex-col items-center justify-center w-full max-w-5xl mx-auto">
           <p 
             className="uppercase tracking-[0.3em] font-bold text-accent mb-6 text-center ml-[0.3em]" 
-            style={{ fontSize: "clamp(5.5rem, 4vw, 3.5rem)" }}
+            style={{ fontSize: "clamp(1.5rem, 4vw, 3.5rem)" }}
           >
             Próximo
           </p>
