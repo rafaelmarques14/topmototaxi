@@ -93,10 +93,10 @@ export default function Fila() {
         <Button 
           variant="destructive" 
           onClick={zerarFila} 
-          className="bg-red-600 hover:bg-red-700 text-white rounded-full"
+          className="bg-red-600 hover:bg-red-700 text-white rounded-full px-3 sm:px-4"
           disabled={fila.length === 0} 
         >
-          <Trash2 className="w-4 h-4 mr-2" />
+          <Trash2 className="w-4 h-4 sm:mr-2" />
           <span className="hidden sm:inline">Zerar Fila</span>
         </Button>
       </div>
@@ -145,8 +145,9 @@ export default function Fila() {
               </PopoverContent>
             </Popover>
           </div>
-          <Button disabled={!selected} onClick={() => addToQueue(selected)} className="gradient-primary text-primary-foreground">
-            <Plus className="w-4 h-4 mr-2" /> Adicionar
+          <Button disabled={!selected} onClick={() => addToQueue(selected)} className="gradient-primary text-primary-foreground px-3 sm:px-4">
+            <Plus className="w-4 h-4 sm:mr-2" /> 
+            <span className="hidden sm:inline">Adicionar</span>
           </Button>
         </div>
       </Card>
