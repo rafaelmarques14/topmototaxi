@@ -3,17 +3,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowDown, ArrowUp, Plus, Play, Trash2, RotateCcw } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { ArrowDown, ArrowUp, Plus, Play, Trash2, RotateCcw, Check, ChevronsUpDown } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 
 interface FilaItem { id: string; posicao: number; motoqueiro_id: string; motoqueiro: { id: string; nome: string; numero: string } | null; }
 interface Motoqueiro { id: string; nome: string; numero: string; }
 
 export default function Fila() {
+  const { user } = useAuth();
   const [fila, setFila] = useState<FilaItem[]>([]);
   const [motos, setMotos] = useState<Motoqueiro[]>([]);
   const [selected, setSelected] = useState<string>("");
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const load = async () => {
     const [{ data: f }, { data: m }] = await Promise.all([
@@ -28,8 +33,9 @@ export default function Fila() {
   const disponiveis = motos.filter(m => !fila.some(f => f.motoqueiro_id === m.id));
 
   const addToQueue = async (id: string) => {
+    if (!user) return;
     const next = (fila[fila.length - 1]?.posicao ?? 0) + 1;
-    const { error } = await supabase.from("fila").insert({ motoqueiro_id: id, posicao: next });
+    const { error } = await supabase.from("fila").insert({ motoqueiro_id: id, posicao: next, owner_id: user.id });
     if (error) toast.error(error.message); else { toast.success("Adicionado à fila"); setSelected(""); load(); }
   };
 
@@ -39,7 +45,8 @@ export default function Fila() {
   };
 
   const startTrip = async (item: FilaItem) => {
-    const { error: e1 } = await supabase.from("viagens").insert({ motoqueiro_id: item.motoqueiro_id });
+    if (!user) return;
+    const { error: e1 } = await supabase.from("viagens").insert({ motoqueiro_id: item.motoqueiro_id, owner_id: user.id });
     if (e1) { toast.error(e1.message); return; }
     const { error: e2 } = await supabase.from("fila").delete().eq("id", item.id);
     if (e2) { toast.error(e2.message); return; }
@@ -67,12 +74,45 @@ export default function Fila() {
         <div className="flex gap-2 items-end">
           <div className="flex-1">
             <label className="text-xs font-medium text-muted-foreground">Adicionar motoqueiro ao final da fila</label>
-            <Select value={selected} onValueChange={setSelected}>
-              <SelectTrigger><SelectValue placeholder={disponiveis.length ? "Selecione um motoqueiro" : "Todos já estão na fila"} /></SelectTrigger>
-              <SelectContent>
-                {disponiveis.map(m => <SelectItem key={m.id} value={m.id}>{m.numero} - {m.nome}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className="w-full justify-between font-normal"
+                  disabled={disponiveis.length === 0}
+                >
+                  {selected
+                    ? (() => {
+                        const m = motos.find(x => x.id === selected);
+                        return m ? `${m.numero} - ${m.nome}` : "Selecione";
+                      })()
+                    : (disponiveis.length ? "Buscar motoqueiro pelo nome..." : "Todos já estão na fila")}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Digite o nome ou número..." />
+                  <CommandList>
+                    <CommandEmpty>Nenhum motoqueiro encontrado.</CommandEmpty>
+                    <CommandGroup>
+                      {disponiveis.map(m => (
+                        <CommandItem
+                          key={m.id}
+                          value={`${m.numero} ${m.nome}`}
+                          onSelect={() => { setSelected(m.id); setPickerOpen(false); }}
+                        >
+                          <Check className={cn("mr-2 h-4 w-4", selected === m.id ? "opacity-100" : "opacity-0")} />
+                          <span className="font-semibold mr-2">{m.numero}</span>
+                          {m.nome}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
           <Button disabled={!selected} onClick={() => addToQueue(selected)} className="gradient-primary text-primary-foreground">
             <Plus className="w-4 h-4 mr-2" /> Adicionar
