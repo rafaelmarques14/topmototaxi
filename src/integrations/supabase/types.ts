@@ -14,16 +14,127 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      fila: {
+        Row: {
+          created_at: string
+          id: string
+          motoqueiro_id: string
+          posicao: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          motoqueiro_id: string
+          posicao: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          motoqueiro_id?: string
+          posicao?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fila_motoqueiro_id_fkey"
+            columns: ["motoqueiro_id"]
+            isOneToOne: false
+            referencedRelation: "motoqueiros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      motoqueiros: {
+        Row: {
+          ativo: boolean
+          cpf: string
+          created_at: string
+          data_nascimento: string | null
+          id: string
+          nome: string
+          numero: string
+        }
+        Insert: {
+          ativo?: boolean
+          cpf: string
+          created_at?: string
+          data_nascimento?: string | null
+          id?: string
+          nome: string
+          numero: string
+        }
+        Update: {
+          ativo?: boolean
+          cpf?: string
+          created_at?: string
+          data_nascimento?: string | null
+          id?: string
+          nome?: string
+          numero?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      viagens: {
+        Row: {
+          id: string
+          iniciada_em: string
+          motoqueiro_id: string
+        }
+        Insert: {
+          id?: string
+          iniciada_em?: string
+          motoqueiro_id: string
+        }
+        Update: {
+          id?: string
+          iniciada_em?: string
+          motoqueiro_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viagens_motoqueiro_id_fkey"
+            columns: ["motoqueiro_id"]
+            isOneToOne: false
+            referencedRelation: "motoqueiros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +261,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin"],
+    },
   },
 } as const
