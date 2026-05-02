@@ -20,6 +20,15 @@ const schema = z.object({
 
 interface M { id: string; nome: string; cpf: string; numero: string; data_nascimento: string | null; }
 
+const formatCPF = (value: string) => {
+  return value
+    .replace(/\D/g, "")
+    .replace(/(\d{3})(\d)/, "$1.$2") 
+    .replace(/(\d{3})(\d)/, "$1.$2") 
+    .replace(/(\d{3})(\d{1,2})/, "$1-$2") 
+    .replace(/(-\d{2})\d+?$/, "$1"); 
+};
+
 export default function Motoqueiros() {
   const { user } = useAuth();
   const [list, setList] = useState<M[]>([]);
@@ -33,8 +42,22 @@ export default function Motoqueiros() {
   };
   useEffect(() => { load(); }, []);
 
-  const openNew = () => { setEditing(null); setForm({ nome: "", cpf: "", numero: "", data_nascimento: "" }); setOpen(true); };
-  const openEdit = (m: M) => { setEditing(m); setForm({ nome: m.nome, cpf: m.cpf, numero: m.numero, data_nascimento: m.data_nascimento ?? "" }); setOpen(true); };
+  const openNew = () => { 
+    setEditing(null); 
+    setForm({ nome: "", cpf: "", numero: "", data_nascimento: "" }); 
+    setOpen(true); 
+  };
+  
+  const openEdit = (m: M) => { 
+    setEditing(m); 
+    setForm({ 
+      nome: m.nome, 
+      cpf: formatCPF(m.cpf),
+      numero: m.numero, 
+      data_nascimento: m.data_nascimento ?? "" 
+    }); 
+    setOpen(true); 
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +102,15 @@ export default function Motoqueiros() {
             <form onSubmit={submit} className="space-y-3">
               <div><Label>Nome *</Label><Input value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} required /></div>
               <div><Label>Número *</Label><Input value={form.numero} onChange={e => setForm({ ...form, numero: e.target.value })} required maxLength={10} /></div>
-              <div><Label>CPF *</Label><Input value={form.cpf} onChange={e => setForm({ ...form, cpf: e.target.value })} required maxLength={14} /></div>
+              <div>
+                <Label>CPF *</Label>
+                <Input 
+                  value={form.cpf} 
+                  onChange={e => setForm({ ...form, cpf: formatCPF(e.target.value) })} // Aplica a máscara no input
+                  required 
+                  maxLength={14} 
+                />
+              </div>
               <div><Label>Data de nascimento</Label><Input type="date" value={form.data_nascimento} onChange={e => setForm({ ...form, data_nascimento: e.target.value })} /></div>
               <Button type="submit" className="w-full gradient-primary text-primary-foreground">{editing ? "Salvar" : "Cadastrar"}</Button>
             </form>
@@ -93,7 +124,9 @@ export default function Motoqueiros() {
             <Badge className="text-lg px-3 py-1 gradient-primary text-primary-foreground border-0">{m.numero}</Badge>
             <div className="flex-1">
               <p className="font-semibold">{m.nome}</p>
-              <p className="text-xs text-muted-foreground">CPF: {m.cpf}{m.data_nascimento && ` · Nasc.: ${new Date(m.data_nascimento).toLocaleDateString("pt-BR")}`}</p>
+              <p className="text-xs text-muted-foreground">
+                CPF: {formatCPF(m.cpf)}{m.data_nascimento && ` · Nasc.: ${new Date(m.data_nascimento).toLocaleDateString("pt-BR")}`}
+              </p>
             </div>
             <Button variant="ghost" size="icon" onClick={() => openEdit(m)}><Pencil className="w-4 h-4" /></Button>
             <Button variant="ghost" size="icon" onClick={() => remove(m.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>

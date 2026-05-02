@@ -16,7 +16,6 @@ export default function ResetPassword() {
   const nav = useNavigate();
 
   useEffect(() => {
-    // Supabase coloca a sessão de recovery automaticamente via hash
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") setReady(true);
     });

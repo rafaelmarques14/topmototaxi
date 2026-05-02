@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
-
 interface FilaItem { id: string; posicao: number; motoqueiro_id: string; motoqueiro: { id: string; nome: string; numero: string } | null; }
 interface Motoqueiro { id: string; nome: string; numero: string; }
 
@@ -65,11 +64,41 @@ export default function Fila() {
     load();
   };
 
+  const zerarFila = async () => {
+    if (!window.confirm("Tem certeza que deseja zerar toda a fila? Essa ação não pode ser desfeita.")) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from("fila")
+      .delete()
+      .not("id", "is", null);
+
+    if (error) {
+      toast.error("Erro ao zerar a fila: " + error.message);
+    } else {
+      toast.success("Fila zerada com sucesso para o fim do expediente!");
+      load(); 
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Fila de atendimento</h2>
-        <p className="text-sm text-muted-foreground">Gerencie a ordem dos motoqueiros</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Fila de atendimento</h2>
+          <p className="text-sm text-muted-foreground">Gerencie a ordem dos motoqueiros</p>
+        </div>
+        
+        <Button 
+          variant="destructive" 
+          onClick={zerarFila} 
+          className="bg-red-600 hover:bg-red-700 text-white rounded-full"
+          disabled={fila.length === 0} 
+        >
+          <Trash2 className="w-4 h-4 mr-2" />
+          <span className="hidden sm:inline">Zerar Fila</span>
+        </Button>
       </div>
 
       <Card className="p-4">

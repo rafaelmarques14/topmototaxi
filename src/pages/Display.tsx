@@ -45,25 +45,26 @@ export default function Display() {
         </Link>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+      <main className="flex-1 flex flex-col items-center justify-start px-6 pt-0 pb-12 -mt-20">
         <div className="flex flex-col items-center justify-center w-full max-w-5xl mx-auto">
           <p 
-            className="uppercase tracking-[0.3em] font-bold text-accent mb-6 text-center ml-[0.3em]" 
-            style={{ fontSize: "clamp(1.5rem, 4vw, 3.5rem)" }}
+            className="uppercase tracking-[0.3em] font-bold text-accent text-center ml-[0.3em]" 
+            style={{ fontSize: "clamp(5.5rem, 10vw, 7.5rem)" }}
           >
             Próximo
           </p>
 
           {next ? (
-            <div className="flex flex-col items-center justify-center text-center animate-in fade-in zoom-in duration-500">
+            <div className="flex flex-col items-center justify-center text-center animate-in fade-in zoom-in duration-500 -mt-12">
               <div 
-                className="text-display leading-none mb-4 text-primary font-black" 
+                className="text-display leading-none text-primary font-black" 
                 style={{ fontSize: "clamp(10rem, 45vw, 35rem)" }}
               >
                 {next.motoqueiro?.numero}
               </div>
+              
               <div 
-                className="text-display text-primary font-semibold" 
+                className="text-display text-primary font-semibold -mt-4" 
                 style={{ fontSize: "clamp(3rem, 10vw, 8rem)" }}
               >
                 {next.motoqueiro?.nome}
