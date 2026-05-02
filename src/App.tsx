@@ -3,10 +3,21 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import { AuthProvider } from "@/hooks/useAuth";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import AdminLayout from "@/components/AdminLayout";
+import Display from "./pages/Display";
+import Auth from "./pages/Auth";
+import Fila from "./pages/admin/Fila";
+import Motoqueiros from "./pages/admin/Motoqueiros";
+import Relatorios from "./pages/admin/Relatorios";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+const Admin = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute><AdminLayout>{children}</AdminLayout></ProtectedRoute>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -14,11 +25,16 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Display />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/admin" element={<Admin><Fila /></Admin>} />
+            <Route path="/admin/motoqueiros" element={<Admin><Motoqueiros /></Admin>} />
+            <Route path="/admin/relatorios" element={<Admin><Relatorios /></Admin>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
