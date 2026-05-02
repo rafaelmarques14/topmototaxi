@@ -53,10 +53,10 @@ export default function Relatorios() {
 
       <Card className="p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
+          <div className="space-y-2 min-w-0">
             <Label>Filtrar por</Label>
             <Select value={period} onValueChange={v => setPeriod(v as Period)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full max-w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="dia">Dia</SelectItem>
                 <SelectItem value="mes">Mês</SelectItem>
@@ -67,23 +67,23 @@ export default function Relatorios() {
           </div>
           
           {period !== "tudo" && (
-            <div className="space-y-2">
+            <div className="space-y-2 min-w-0">
               {period === "dia" && (
                 <>
                   <Label>Data</Label>
-                  <Input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full" />
+                  <Input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full max-w-full block" />
                 </>
               )}
               {period === "mes" && (
                 <>
                   <Label>Mês</Label>
-                  <Input type="month" value={month} onChange={e => setMonth(e.target.value)} className="w-full" />
+                  <Input type="month" value={month} onChange={e => setMonth(e.target.value)} className="w-full max-w-full block" />
                 </>
               )}
               {period === "ano" && (
                 <>
                   <Label>Ano</Label>
-                  <Input type="number" value={year} onChange={e => setYear(e.target.value)} className="w-full" />
+                  <Input type="number" value={year} onChange={e => setYear(e.target.value)} className="w-full max-w-full block" />
                 </>
               )}
             </div>
