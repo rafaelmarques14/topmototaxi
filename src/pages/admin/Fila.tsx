@@ -5,10 +5,12 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { ArrowDown, ArrowUp, Plus, Play, Trash2, RotateCcw, Check, ChevronsUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, Plus, Play, Trash2, RotateCcw, Check, ChevronsUpDown, MoreVertical } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+
 
 interface FilaItem { id: string; posicao: number; motoqueiro_id: string; motoqueiro: { id: string; nome: string; numero: string } | null; }
 interface Motoqueiro { id: string; nome: string; numero: string; }
@@ -84,9 +86,9 @@ export default function Fila() {
                 >
                   {selected
                     ? (() => {
-                        const m = motos.find(x => x.id === selected);
-                        return m ? `${m.numero} - ${m.nome}` : "Selecione";
-                      })()
+                      const m = motos.find(x => x.id === selected);
+                      return m ? `${m.numero} - ${m.nome}` : "Selecione";
+                    })()
                     : (disponiveis.length ? "Buscar motoqueiro pelo nome..." : "Todos já estão na fila")}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -122,18 +124,58 @@ export default function Fila() {
 
       <div className="space-y-2">
         {fila.map((item, i) => (
-          <Card key={item.id} className={`p-4 flex items-center gap-3 ${i === 0 ? "border-primary border-2 shadow-elegant" : ""}`}>
-            <div className="text-2xl font-bold text-muted-foreground w-10">{i + 1}º</div>
-            <Badge className="text-lg px-3 gradient-primary text-primary-foreground border-0">{item.motoqueiro?.numero}</Badge>
-            <div className="flex-1 font-semibold">{item.motoqueiro?.nome}</div>
-            <Button size="icon" variant="ghost" disabled={i === 0} onClick={() => move(i, -1)}><ArrowUp className="w-4 h-4" /></Button>
-            <Button size="icon" variant="ghost" disabled={i === fila.length - 1} onClick={() => move(i, 1)}><ArrowDown className="w-4 h-4" /></Button>
-            {i === 0 && (
-              <Button size="sm" onClick={() => startTrip(item)} className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:opacity-90">
-                <Play className="w-4 h-4 mr-2" /> Saiu para viagem
+          <Card key={item.id} className={`p-4 flex items-center gap-2 sm:gap-3 ${i === 0 ? "border-primary border-2 shadow-elegant" : ""}`}>
+            <div className="text-xl sm:text-2xl font-bold text-muted-foreground w-8 sm:w-10 tabular-nums">{i + 1}º</div>
+            <Badge className="text-base sm:text-lg px-2 sm:px-3 gradient-primary text-primary-foreground border-0 tabular-nums">
+              {item.motoqueiro?.numero}
+            </Badge>
+
+            <div className="flex-1 font-semibold truncate pr-2 text-sm sm:text-base">
+              {item.motoqueiro?.nome}
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0">
+              {i === 0 && (
+                <Button
+                  size="sm"
+                  onClick={() => startTrip(item)}
+                  className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] hover:opacity-90 h-9 px-3 sm:px-4"
+                >
+                  <Play className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Saiu para viagem</span>
+                </Button>
+              )}
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="ghost" className="h-9 w-9 sm:hidden">
+                    <MoreVertical className="w-5 h-5 text-muted-foreground" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem disabled={i === 0} onClick={() => move(i, -1)}>
+                    <ArrowUp className="w-4 h-4 mr-2" /> Subir posição
+                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled={i === fila.length - 1} onClick={() => move(i, 1)}>
+                    <ArrowDown className="w-4 h-4 mr-2" /> Descer posição
+                  </DropdownMenuItem>
+                  <div className="h-px bg-border my-1" />
+                  <DropdownMenuItem onClick={() => removeFromQueue(item)} className="text-destructive focus:text-destructive">
+                    <Trash2 className="w-4 h-4 mr-2" /> Remover da fila
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button size="icon" variant="ghost" disabled={i === 0} onClick={() => move(i, -1)} className="hidden sm:inline-flex h-9 w-9">
+                <ArrowUp className="w-4 h-4" />
               </Button>
-            )}
-            <Button size="icon" variant="ghost" onClick={() => removeFromQueue(item)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+              <Button size="icon" variant="ghost" disabled={i === fila.length - 1} onClick={() => move(i, 1)} className="hidden sm:inline-flex h-9 w-9">
+                <ArrowDown className="w-4 h-4" />
+              </Button>
+              <Button size="icon" variant="ghost" onClick={() => removeFromQueue(item)} className="hidden sm:inline-flex h-9 w-9">
+                <Trash2 className="w-4 h-4 text-destructive" />
+              </Button>
+            </div>
           </Card>
         ))}
         {fila.length === 0 && (

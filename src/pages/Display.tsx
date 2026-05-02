@@ -46,14 +46,22 @@ export default function Display() {
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-        <p className="uppercase tracking-[0.3em] text-sm text-accent mb-6">Próximo</p>
+        <p className="uppercase tracking-[0.3em] font-bold text-accent mb-6" style={{ fontSize: "clamp(1.5rem, 4vw, 3.5rem)" }}>
+          Próximo
+        </p>
 
         {next ? (
-          <div className="text-center animate-in fade-in zoom-in duration-500">
-            <div className="text-display leading-none mb-8 text-primary" style={{ fontSize: "clamp(8rem, 30vw, 22rem)" }}>
+          <div className="text-center animate-in fade-in zoom-in duration-500 w-full">
+            <div 
+              className="text-display leading-none mb-4 text-primary font-black" 
+              style={{ fontSize: "clamp(10rem, 45vw, 35rem)" }}
+            >
               {next.motoqueiro?.numero}
             </div>
-            <div className="text-display text-primary" style={{ fontSize: "clamp(2rem, 6vw, 4.5rem)" }}>
+            <div 
+              className="text-display text-primary font-semibold" 
+              style={{ fontSize: "clamp(3rem, 10vw, 8rem)" }}
+            >
               {next.motoqueiro?.nome}
             </div>
           </div>
@@ -62,25 +70,10 @@ export default function Display() {
             <div className="text-display text-muted-foreground" style={{ fontSize: "clamp(3rem, 10vw, 6rem)" }}>
               Fila vazia
             </div>
-            <p className="text-muted-foreground mt-4">Aguardando motoqueiros...</p>
+            <p className="text-muted-foreground mt-4 text-2xl">Aguardando motoqueiros...</p>
           </div>
         )}
       </main>
-
-      {upcoming.length > 0 && (
-        <footer className="border-t border-border/30 p-6 bg-background/5 backdrop-blur">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">A seguir</p>
-          <div className="flex gap-4 flex-wrap">
-            {upcoming.map((it, i) => (
-              <div key={it.id} className="flex items-center gap-3 bg-background/10 rounded-xl px-4 py-3 backdrop-blur border border-border/20">
-                <span className="text-xs text-muted-foreground">#{i + 2}</span>
-                <span className="text-2xl text-display text-accent">{it.motoqueiro?.numero}</span>
-                <span className="text-foreground">{it.motoqueiro?.nome}</span>
-              </div>
-            ))}
-          </div>
-        </footer>
-      )}
     </div>
   );
 }
