@@ -40,3 +40,9 @@
 .read-the-docs {
   color: #888;
 }
+
+
+[id*="lovable"], 
+[class*="lovable"] {
+  display: none !important;
+}
