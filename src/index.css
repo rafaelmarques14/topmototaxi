@@ -94,3 +94,12 @@
     letter-spacing: -0.04em;
   }
 }
+
+
+a[href*="lovable.dev"],
+a[href*="lovable-badge"],
+div:has(> a[href*="lovable.dev"]) {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
