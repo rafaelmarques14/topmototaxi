@@ -9,6 +9,16 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Bike } from "lucide-react";
 
+const traduzirErro = (mensagem: string) => {
+  if (mensagem.includes("Invalid login credentials")) return "E-mail ou senha incorretos.";
+  if (mensagem.includes("User already registered")) return "Este e-mail já está cadastrado.";
+  if (mensagem.includes("Password should be at least 6 characters")) return "A senha deve ter pelo menos 6 caracteres.";
+  if (mensagem.includes("Email not confirmed")) return "E-mail não confirmado. Verifique sua caixa de entrada.";
+  if (mensagem.includes("User not found")) return "Usuário não encontrado.";
+  if (mensagem.includes("security") || mensagem.includes("rate limit")) return "Muitas tentativas. Tente novamente mais tarde.";
+  return "Ocorreu um erro inesperado. Tente novamente.";
+};
+
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
   const [email, setEmail] = useState("");
@@ -44,7 +54,8 @@ export default function Auth() {
         toast.success("Bem-vindo!");
       }
     } catch (err: any) {
-      toast.error(err.message ?? "Erro ao autenticar");
+      const erroTraduzido = traduzirErro(err.message || "");
+      toast.error(erroTraduzido);
     } finally { setBusy(false); }
   };
 
