@@ -96,10 +96,12 @@
 }
 
 
-a[href*="lovable.dev"],
-a[href*="lovable-badge"],
-div:has(> a[href*="lovable.dev"]) {
+body > div:has(a[href*="lovable"]),
+body > div:has(a[href*="lovable-badge"]),
+[id*="lovable"], 
+[class*="lovable"] {
   display: none !important;
+  visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
 }
