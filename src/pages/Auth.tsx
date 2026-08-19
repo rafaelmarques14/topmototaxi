@@ -20,14 +20,18 @@ const traduzirErro = (mensagem: string) => {
 };
 
 export default function Auth() {
-  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
+  const [mode, setMode] = useState<"login" | "signup" | "forgot" | "codigo">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [codigo, setCodigo] = useState("");
+  const [novaSenha, setNovaSenha] = useState("");
   const [busy, setBusy] = useState(false);
   const { user, loading } = useAuth();
   const nav = useNavigate();
 
-  useEffect(() => { if (!loading && user) nav("/admin"); }, [user, loading, nav]);
+  useEffect(() => {
+    if (!loading && user && mode !== "codigo") nav("/admin");
+  }, [user, loading, nav, mode]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,8 +50,20 @@ export default function Auth() {
           redirectTo: `${window.location.origin}/reset-password`,
         });
         if (error) throw error;
-        toast.success("Enviamos um link de redefinição para o seu e-mail.");
+        toast.success("Enviamos um código de 6 dígitos para o seu e-mail.");
+        setMode("codigo");
+      } else if (mode === "codigo") {
+        if (novaSenha.length < 6) throw new Error("Password should be at least 6 characters");
+        const { error: otpError } = await supabase.auth.verifyOtp({
+          email, token: codigo.trim(), type: "recovery",
+        });
+        if (otpError) throw otpError;
+        const { error: updError } = await supabase.auth.updateUser({ password: novaSenha });
+        if (updError) throw updError;
+        toast.success("Senha alterada! Entrando...");
+        setCodigo(""); setNovaSenha("");
         setMode("login");
+        nav("/admin");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
