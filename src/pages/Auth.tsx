@@ -89,16 +89,28 @@ export default function Auth() {
         <form onSubmit={submit} className="space-y-4">
           <div>
             <Label htmlFor="email">E-mail</Label>
-            <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+            <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required disabled={mode === "codigo"} />
           </div>
-          {mode !== "forgot" && (
+          {mode === "codigo" && (
+            <>
+              <div>
+                <Label htmlFor="codigo">Código recebido por e-mail</Label>
+                <Input id="codigo" inputMode="numeric" value={codigo} onChange={e => setCodigo(e.target.value)} required placeholder="000000" />
+              </div>
+              <div>
+                <Label htmlFor="novaSenha">Nova senha</Label>
+                <Input id="novaSenha" type="password" value={novaSenha} onChange={e => setNovaSenha(e.target.value)} required minLength={6} />
+              </div>
+            </>
+          )}
+          {mode !== "forgot" && mode !== "codigo" && (
             <div>
               <Label htmlFor="password">Senha</Label>
               <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
             </div>
           )}
           <Button type="submit" disabled={busy} className="w-full gradient-primary text-primary-foreground hover:opacity-90">
-            {busy ? "Aguarde..." : mode === "login" ? "Entrar" : mode === "signup" ? "Criar conta" : "Enviar link"}
+            {busy ? "Aguarde..." : mode === "login" ? "Entrar" : mode === "signup" ? "Criar conta" : mode === "forgot" ? "Enviar código" : "Salvar nova senha"}
           </Button>
         </form>
 
@@ -110,9 +122,16 @@ export default function Auth() {
               </button>
             </div>
           )}
+          {mode === "codigo" && (
+            <div>
+              <button onClick={() => setMode("forgot")} className="text-primary hover:underline">
+                Reenviar código
+              </button>
+            </div>
+          )}
           <div>
           <button onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-primary hover:underline">
-            {mode === "signup" || mode === "forgot" ? "Já tenho conta" : "Criar conta de administrador"}
+            {mode === "login" ? "Criar conta de administrador" : "Já tenho conta"}
           </button>
           </div>
         </div>
