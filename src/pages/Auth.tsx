@@ -20,14 +20,18 @@ const traduzirErro = (mensagem: string) => {
 };
 
 export default function Auth() {
-  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
+  const [mode, setMode] = useState<"login" | "signup" | "forgot" | "codigo">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [codigo, setCodigo] = useState("");
+  const [novaSenha, setNovaSenha] = useState("");
   const [busy, setBusy] = useState(false);
   const { user, loading } = useAuth();
   const nav = useNavigate();
 
-  useEffect(() => { if (!loading && user) nav("/admin"); }, [user, loading, nav]);
+  useEffect(() => {
+    if (!loading && user && mode !== "codigo") nav("/admin");
+  }, [user, loading, nav, mode]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,8 +50,20 @@ export default function Auth() {
           redirectTo: `${window.location.origin}/reset-password`,
         });
         if (error) throw error;
-        toast.success("Enviamos um link de redefinição para o seu e-mail.");
+        toast.success("Enviamos um código de 6 dígitos para o seu e-mail.");
+        setMode("codigo");
+      } else if (mode === "codigo") {
+        if (novaSenha.length < 6) throw new Error("Password should be at least 6 characters");
+        const { error: otpError } = await supabase.auth.verifyOtp({
+          email, token: codigo.trim(), type: "recovery",
+        });
+        if (otpError) throw otpError;
+        const { error: updError } = await supabase.auth.updateUser({ password: novaSenha });
+        if (updError) throw updError;
+        toast.success("Senha alterada! Entrando...");
+        setCodigo(""); setNovaSenha("");
         setMode("login");
+        nav("/admin");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -73,16 +89,28 @@ export default function Auth() {
         <form onSubmit={submit} className="space-y-4">
           <div>
             <Label htmlFor="email">E-mail</Label>
-            <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+            <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required disabled={mode === "codigo"} />
           </div>
-          {mode !== "forgot" && (
+          {mode === "codigo" && (
+            <>
+              <div>
+                <Label htmlFor="codigo">Código recebido por e-mail</Label>
+                <Input id="codigo" inputMode="numeric" value={codigo} onChange={e => setCodigo(e.target.value)} required placeholder="000000" />
+              </div>
+              <div>
+                <Label htmlFor="novaSenha">Nova senha</Label>
+                <Input id="novaSenha" type="password" value={novaSenha} onChange={e => setNovaSenha(e.target.value)} required minLength={6} />
+              </div>
+            </>
+          )}
+          {mode !== "forgot" && mode !== "codigo" && (
             <div>
               <Label htmlFor="password">Senha</Label>
               <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
             </div>
           )}
           <Button type="submit" disabled={busy} className="w-full gradient-primary text-primary-foreground hover:opacity-90">
-            {busy ? "Aguarde..." : mode === "login" ? "Entrar" : mode === "signup" ? "Criar conta" : "Enviar link"}
+            {busy ? "Aguarde..." : mode === "login" ? "Entrar" : mode === "signup" ? "Criar conta" : mode === "forgot" ? "Enviar código" : "Salvar nova senha"}
           </Button>
         </form>
 
@@ -94,9 +122,16 @@ export default function Auth() {
               </button>
             </div>
           )}
+          {mode === "codigo" && (
+            <div>
+              <button onClick={() => setMode("forgot")} className="text-primary hover:underline">
+                Reenviar código
+              </button>
+            </div>
+          )}
           <div>
           <button onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-primary hover:underline">
-            {mode === "signup" || mode === "forgot" ? "Já tenho conta" : "Criar conta de administrador"}
+            {mode === "login" ? "Criar conta de administrador" : "Já tenho conta"}
           </button>
           </div>
         </div>
